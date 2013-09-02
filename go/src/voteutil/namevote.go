@@ -1,9 +1,10 @@
-package voting
+package voteutil
 
+import "errors"
 import "sort"
 import "strconv"
-import "os"
-import "url"
+//import "os"
+import "net/url"
 
 type NameRating struct {
 	Name string
@@ -82,7 +83,7 @@ func (nm *NameMap) NameVoteToIndexVote(it NameVote) *IndexVote {
 
 // Parse url-query formatted vote.
 // choice+one=1&choice+2=2&...
-func UrlToNameVote(vote string) (*NameVote, os.Error) {
+func UrlToNameVote(vote string) (*NameVote, error) {
 	vals, err := url.ParseQuery(vote)
 	if err != nil {
 		return nil, err
@@ -90,9 +91,9 @@ func UrlToNameVote(vote string) (*NameVote, os.Error) {
 	out := new(NameVote)
 	for name, slist := range vals {
 		if len(slist) != 1 {
-			return nil, os.NewError("Too many values for name: " + name)
+			return nil, errors.New("Too many values for name: " + name)
 		}
-		rating, err := strconv.Atof64(slist[0])
+		rating, err := strconv.ParseFloat(slist[0], 64)
 		if err != nil {
 			return nil, err
 		}
